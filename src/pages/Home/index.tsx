@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useReducer, useState } from 'react';
-import { produce } from 'immer';
+import { PlusCircle, ClipboardText, Trash } from 'phosphor-react';
 
 import { Header } from '../../components/Header';
+import { Task, tasksReducer } from '../../reducers/tasks/reducer';
 
-import { PlusCircle, ClipboardText, Trash } from 'phosphor-react';
 import {
   Container,
   NewTaskContainer,
@@ -16,65 +16,15 @@ import {
   TodoContainer,
   Wrapper,
 } from './styles';
-
-interface Task {
-  id: string;
-  title: string;
-  isDone: boolean;
-}
-interface TasksState {
-  tasks: Task[];
-  amountTasks: number;
-  amountTasksDone: number;
-}
+import {
+  addNewTask,
+  deleteTask,
+  markTaskDone,
+} from '../../reducers/tasks/actions';
 
 export function Home() {
   const [tasksState, dispatch] = useReducer(
-    (state: TasksState, action: any) => {
-      if (action.type === 'ADD_NEW_TASK') {
-        return produce(state, (draft) => {
-          draft.tasks.push(action.payload.newTask);
-          draft.amountTasks = draft.amountTasks + 1;
-          return draft;
-        });
-      }
-
-      if (action.type === 'MARK_TASK_DONE') {
-        return produce(state, (draft) => {
-          const index = draft.tasks.findIndex(
-            (task) => task.id === action.payload.id
-          );
-
-          if (draft.tasks[index].isDone) {
-            draft.tasks[index].isDone = false;
-            draft.amountTasksDone = draft.amountTasksDone - 1;
-          } else {
-            draft.tasks[index].isDone = true;
-            draft.amountTasksDone = draft.amountTasksDone + 1;
-          }
-          return draft;
-        });
-      }
-
-      if (action.type === 'DELETE_TASK') {
-        return produce(state, (draft) => {
-          const index = draft.tasks.findIndex(
-            (task) => task.id === action.payload.id
-          );
-
-          if (draft.tasks[index].isDone) {
-            draft.amountTasksDone = draft.amountTasksDone - 1;
-          }
-
-          draft.amountTasks = draft.amountTasks - 1;
-          draft.tasks.splice(index, 1);
-
-          return draft;
-        });
-      }
-
-      return state;
-    },
+    tasksReducer,
     {
       tasks: [],
       amountTasks: 0,
@@ -103,32 +53,26 @@ export function Home() {
 
   function handleAddNewTask(event: FormEvent) {
     event.preventDefault();
+
+    if (!title) return;
+
     const newTask: Task = {
       id: String(new Date().getTime()),
       title,
       isDone: false,
     };
 
-    dispatch({
-      type: 'ADD_NEW_TASK',
-      payload: { newTask },
-    });
+    dispatch(addNewTask(newTask));
 
     setTitle('');
   }
 
   function handleMarkTaskDone(id: string) {
-    dispatch({
-      type: 'MARK_TASK_DONE',
-      payload: { id },
-    });
+    dispatch(markTaskDone(id));
   }
 
   function handleDeleteTask(id: string) {
-    dispatch({
-      type: 'DELETE_TASK',
-      payload: { id },
-    });
+    dispatch(deleteTask(id));
   }
 
   return (
