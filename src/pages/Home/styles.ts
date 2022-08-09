@@ -172,17 +172,13 @@ export const TaskItem = styled.div<TaskItemProps>`
   }
 
   button {
-    display: inline-block;
+    display: flex;
     border: 0;
     margin: 0;
     padding: 0;
     background: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-
-    &:focus {
-      display: flex;
-    }
 
     &:hover {
       display: flex;
